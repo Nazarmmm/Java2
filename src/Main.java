@@ -1,157 +1,255 @@
-package bsu.rfe.java.group7.lab2.Ivanov.varB4;
-// Импортируются классы, используемые в приложении
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-@SuppressWarnings("serial")
-// Главный класс приложения, он же класс фрейма
-public class MainFrame extends JFrame {
-    // Размеры окна приложения в виде констант
-    private static final int WIDTH = 400;
-    private static final int HEIGHT = 320;
-    // Текстовые поля для считывания значений переменных,
-// как компоненты, совместно используемые в различных методах
-    private JTextField textFieldX;
-    private JTextField textFieldY;
-    // Текстовое поле для отображения результата,
-// как компонент, совместно используемый в различных методах
-    private JTextField textFieldResult;
-    // Группа радио-кнопок для обеспечения уникальности выделения в группе
-    private ButtonGroup radioButtons = new ButtonGroup();
-    // Контейнер для отображения радио-кнопок
-    private Box hboxFormulaType = Box.createHorizontalBox();
-    private int formulaId = 1;
-    // Формула №1 для рассчѐта
-    public Double calculate1(Double x, Double y) {
-        return x*x + y*y;
-    }
-    // Формула №2 для рассчѐта
-    public Double calculate2(Double x, Double y) {
-        return x*x*x + 1/y;
-    }
-    // Вспомогательный метод для добавления кнопок на панель
-    private void addRadioButton(String buttonName, final int formulaId) {
-        JRadioButton button = new JRadioButton(buttonName);
-        button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ev) {
-                MainFrame.this.formulaId = formulaId;
-                imagePane.updateUI();
-            }
-        });
-        radioButtons.add(button);
-        hboxFormulaType.add(button);
-    }
-    // Конструктор класса
-    public MainFrame() {
-        super("Вычисление формулы");
-        setSize(WIDTH, HEIGHT);
-        Toolkit kit = Toolkit.getDefaultToolkit();
-// Отцентрировать окно приложения на экране
-        setLocation((kit.getScreenSize().width - WIDTH)/2,
-                (kit.getScreenSize().height - HEIGHT)/2);
-        hboxFormulaType.add(Box.createHorizontalGlue());
-        addRadioButton("Формула 1", 1);
-        addRadioButton("Формула 2", 2);
-        radioButtons.setSelected(
-                radioButtons.getElements().nextElement().getModel(), true);
-        hboxFormulaType.add(Box.createHorizontalGlue());
-        hboxFormulaType.setBorder(
-                BorderFactory.createLineBorder(Color.YELLOW));
-// Создать область с полями ввода для X и Y
-        JLabel labelForX = new JLabel("X:");
-        textFieldX = new JTextField("0", 10);
-        textFieldX.setMaximumSize(textFieldX.getPreferredSize());
-        JLabel labelForY = new JLabel("Y:");
-        textFieldY = new JTextField("0", 10);
-        textFieldY.setMaximumSize(textFieldY.getPreferredSize());
-        Box hboxVariables = Box.createHorizontalBox();
-        hboxVariables.setBorder(
-                BorderFactory.createLineBorder(Color.RED));
-        hboxVariables.add(Box.createHorizontalGlue());
-        hboxVariables.add(labelForX);
-        hboxVariables.add(Box.createHorizontalStrut(10));
-        hboxVariables.add(textFieldX);
-        hboxVariables.add(Box.createHorizontalStrut(100));
-        hboxVariables.add(labelForY);
-        hboxVariables.add(Box.createHorizontalStrut(10));
-        hboxVariables.add(textFieldY);
-        hboxVariables.add(Box.createHorizontalGlue());
-// Создать область для вывода результата
-        JLabel labelForResult = new JLabel("Результат:");
-//labelResult = new JLabel("0");
-        textFieldResult = new JTextField("0", 10);
-        textFieldResult.setMaximumSize(
-                textFieldResult.getPreferredSize());
-        Box hboxResult = Box.createHorizontalBox();
-        hboxResult.add(Box.createHorizontalGlue());
-        hboxResult.add(labelForResult);
-        hboxResult.add(Box.createHorizontalStrut(10));
-        hboxResult.add(textFieldResult);
-        hboxResult.add(Box.createHorizontalGlue());
-        hboxResult.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-// Создать область для кнопок
-        JButton buttonCalc = new JButton("Вычислить");
-        buttonCalc.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ev) {
-                try {
-                    Double x = Double.parseDouble(textFieldX.getText());
-                    Double y = Double.parseDouble(textFieldY.getText());
-                    Double result;
-                    if (formulaId==1)
-                        result = calculate1(x, y);
-                    else
-                        result = calculate2(x, y);
-                    textFieldResult.setText(result.toString());
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(MainFrame.this,
-                            "Ошибка в формате записи числа с плавающей точкой", "Ошибочный формат числа",
-                            JOptionPane.WARNING_MESSAGE);
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Vector;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+
+
+
+public class Main {
+
+    @SuppressWarnings("serial")
+    public static class MainFrame extends JFrame{
+        private static final int WIDTH = 700;
+        private static final int HEIGHT = 500;
+
+        private JTextField textFieldX;
+        private JTextField textFieldY;
+
+        private JTextField textFieldZ;
+
+        private JTextField textFieldResult;
+
+        private ButtonGroup radioButtons = new ButtonGroup();
+        private Box hboxFormulaType = Box.createHorizontalBox();
+
+        private int formulaId = 1;
+        private int memoryID = 0;
+        private ButtonGroup memoryButtons = new ButtonGroup();
+        private Box Memorybox = Box.createHorizontalBox();
+        private Vector<JTextField> TextMemory = new Vector<JTextField>();
+
+
+        public Double calculate1(Double x, Double y, Double z) {
+            return Math.pow(Math.cos(Math.PI * Math.pow(x, 3)) + Math.pow(Math.log(1 + y), 2), 0.25) *
+                    (Math.exp(Math.pow(z, 2)) + Math.pow(1 / x, 0.5) + Math.cos(Math.pow(x, 2)));
+        }
+
+        public Double calculate2(Double x, Double y, Double z) {
+            return (Math.exp(0.5 * x)) / (Math.pow(z + y, 0.5) * Math.log(Math.pow(x, z)));
+        }
+
+
+        private void addFormulaRadioButton(String buttonName, final int formulaId) {
+            JRadioButton button = new JRadioButton(buttonName);
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+
+                    MainFrame.this.formulaId = formulaId;
+
                 }
+            });
+            radioButtons.add(button);
+            hboxFormulaType.add(button);
+        }
+
+        private void addMemoryRadioButton(String buttonname, final int ID){
+            JRadioButton button = new JRadioButton(buttonname);
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+
+                    MainFrame.this.memoryID = ID;
+                }
+            });
+            memoryButtons.add(button);
+            Memorybox.add(button);
+        }
+
+
+        public MainFrame() throws IOException {
+            super("Formulas counting");
+            setSize(WIDTH, HEIGHT);
+            Toolkit kit = Toolkit.getDefaultToolkit();
+
+            setLocation((kit.getScreenSize().width - WIDTH)/2,
+                    (kit.getScreenSize().height - HEIGHT)/2);
+
+            hboxFormulaType.add(Box.createHorizontalGlue());
+            addFormulaRadioButton("Formula 1", 1);
+            addFormulaRadioButton("Formula 2", 2);
+            radioButtons.setSelected(
+                    radioButtons.getElements().nextElement().getModel(), true);
+            hboxFormulaType.add(Box.createHorizontalGlue());
+            hboxFormulaType.setBorder(
+                    BorderFactory.createLineBorder(Color.YELLOW));
+
+            JLabel labelForX = new JLabel("X:");
+            textFieldX = new JTextField("0", 10);
+            textFieldX.setMaximumSize(textFieldX.getPreferredSize());
+            JLabel labelForY = new JLabel("Y:");
+            textFieldY = new JTextField("0", 10);
+            textFieldY.setMaximumSize(textFieldY.getPreferredSize());
+
+            JLabel labelForZ = new JLabel("Z:");
+            textFieldZ = new JTextField("0", 10);
+            textFieldZ.setMaximumSize(textFieldZ.getPreferredSize());
+
+            Box hboxVariables = Box.createHorizontalBox();
+            hboxVariables.setBorder(
+                    BorderFactory.createLineBorder(Color.RED));
+            hboxVariables.add(Box.createHorizontalGlue());
+            hboxVariables.add(labelForX);
+            hboxVariables.add(Box.createHorizontalStrut(10));
+            hboxVariables.add(textFieldX);
+            hboxVariables.add(Box.createHorizontalStrut(100));
+            hboxVariables.add(labelForY);
+            hboxVariables.add(Box.createHorizontalStrut(10));
+            hboxVariables.add(textFieldY);
+            hboxVariables.add(Box.createHorizontalStrut(100));
+            hboxVariables.add(labelForZ);
+            hboxVariables.add(Box.createHorizontalStrut(10));
+            hboxVariables.add(textFieldZ);
+
+            hboxVariables.add(Box.createHorizontalGlue());
+
+            JLabel labelForResult = new JLabel("Result:");
+            textFieldResult = new JTextField("0", 20);
+            textFieldResult.setMaximumSize(
+                    textFieldResult.getPreferredSize());
+            Box hboxResult = Box.createHorizontalBox();
+            hboxResult.add(Box.createHorizontalGlue());
+            hboxResult.add(labelForResult);
+            hboxResult.add(Box.createHorizontalStrut(20));
+            hboxResult.add(textFieldResult);
+            hboxResult.add(Box.createHorizontalGlue());
+            hboxResult.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+
+            JButton buttonCalc = new JButton("Count");
+            buttonCalc.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    try {
+                        Double x = Double.parseDouble(textFieldX.getText());
+                        Double y = Double.parseDouble(textFieldY.getText());
+                        Double z = Double.parseDouble(textFieldZ.getText());
+                        Double result;
+                        if (formulaId==1)
+                            result = calculate1(x, y, z);
+                        else
+                            result = calculate2(x, y, z);
+                        textFieldResult.setText(result.toString());
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(MainFrame.this,
+                                "Error in floating number!", "Error numbers formula",
+                                JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+            });
+            JButton buttonReset = new JButton("Clear");
+            buttonReset.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    textFieldX.setText("0");
+                    textFieldY.setText("0");
+                    textFieldZ.setText("0");
+                    textFieldResult.setText("0");
+                }
+            });
+            Box hboxButtons = Box.createHorizontalBox();
+            hboxButtons.add(Box.createHorizontalGlue());
+            hboxButtons.add(buttonCalc);
+            hboxButtons.add(Box.createHorizontalStrut(30));
+            hboxButtons.add(buttonReset);
+            hboxButtons.add(Box.createHorizontalGlue());
+            hboxButtons.setBorder(
+                    BorderFactory.createLineBorder(Color.GREEN));
+
+
+            Memorybox.add(Box.createHorizontalGlue());
+            addMemoryRadioButton("Mem1", 0);
+            Memorybox.add(Box.createHorizontalStrut(150));
+            addMemoryRadioButton("Mem2", 1);
+            Memorybox.add(Box.createHorizontalStrut(150));
+            addMemoryRadioButton("Mem3", 2);
+            memoryButtons.setSelected(
+                    memoryButtons.getElements().nextElement().getModel(), true);
+            Memorybox.add(Box.createHorizontalGlue());
+            Memorybox.setBorder(
+                    BorderFactory.createLineBorder(Color.BLACK));
+
+
+            Vector<JLabel> MemoryLables = new Vector<JLabel>();
+            MemoryLables.add(0, new JLabel("Mem1"));
+            MemoryLables.get(0).setMaximumSize(MemoryLables.get(0).getPreferredSize());
+            MemoryLables.add(1, new JLabel("Mem2"));
+            MemoryLables.get(1).setMaximumSize(MemoryLables.get(1).getPreferredSize());
+            MemoryLables.add(2, new JLabel("Mem3"));
+            MemoryLables.get(2).setMaximumSize(MemoryLables.get(2).getPreferredSize());
+
+            TextMemory.add(0, new JTextField("0", 20));
+            TextMemory.get(0).setMaximumSize(TextMemory.get(0).getPreferredSize());
+            TextMemory.add(1, new JTextField("0", 20));
+            TextMemory.get(1).setMaximumSize(TextMemory.get(1).getPreferredSize());
+            TextMemory.add(2, new JTextField("0", 20));
+            TextMemory.get(2).setMaximumSize(TextMemory.get(2).getPreferredSize());
+            Box TextMemoryBox = Box.createHorizontalBox();
+            TextMemoryBox.setBorder(
+                    BorderFactory.createLineBorder(Color.RED));
+
+            for(int i = 0; i < 3; i++) {
+                TextMemoryBox.add(Box.createHorizontalGlue());
+                TextMemoryBox.add(MemoryLables.get(i));
+                TextMemoryBox.add(Box.createHorizontalStrut(10));
+                TextMemoryBox.add(TextMemory.get(i));
+                TextMemoryBox.add(Box.createHorizontalStrut(50));
             }
-        });
-        JButton buttonReset = new JButton("Очистить поля");
-        buttonReset.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ev) {
-                textFieldX.setText("0");
-                textFieldY.setText("0");
-                textFieldResult.setText("0");
-            }
-        });
-        Box hboxButtons = Box.createHorizontalBox();
-        hboxButtons.add(Box.createHorizontalGlue());
-        hboxButtons.add(buttonCalc);
-        hboxButtons.add(Box.createHorizontalStrut(30));
-        hboxButtons.add(buttonReset);
-        hboxButtons.add(Box.createHorizontalGlue());
-        hboxButtons.setBorder(
-                BorderFactory.createLineBorder(Color.GREEN));
-// Связать области воедино в компоновке BoxLayout
-        Box contentBox = Box.createVerticalBox();
-        contentBox.add(Box.createVerticalGlue());
-        contentBox.add(hboxFormulaType);
-        contentBox.add(hboxVariables);
-        contentBox.add(hboxResult);
-        contentBox.add(hboxButtons);
-        contentBox.add(Box.createVerticalGlue());
-        getContentPane().add(contentBox, BorderLayout.CENTER);
+            hboxVariables.add(Box.createHorizontalGlue());
+
+            JButton MplusButton = new JButton("M+");
+            MplusButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    Double num = Double.parseDouble(textFieldResult.getText());
+                    num += Double.parseDouble(TextMemory.get(memoryID).getText());
+                    TextMemory.get(memoryID).setText(String.valueOf(num));
+                }
+            });
+
+            JButton MCButton = new JButton("MC");
+            MCButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    TextMemory.get(memoryID).setText("0");
+                }
+            });
+
+
+            Box MButtonBox = Box.createHorizontalBox();
+            MButtonBox.add(Box.createHorizontalGlue());
+            MButtonBox.add(MplusButton);
+            MButtonBox.add(Box.createHorizontalStrut(30));
+            MButtonBox.add(MCButton);
+            MButtonBox.add(Box.createHorizontalGlue());
+            MButtonBox.setBorder(
+                    BorderFactory.createLineBorder(Color.BLACK));
+
+
+            Box contentBox = Box.createVerticalBox();
+            contentBox.add(Box.createVerticalGlue());
+            contentBox.add(hboxFormulaType);
+            contentBox.add(hboxVariables);
+            contentBox.add(hboxResult);
+            contentBox.add(hboxButtons);
+            contentBox.add(Memorybox);
+            contentBox.add(TextMemoryBox);
+            contentBox.add(MButtonBox);
+            contentBox.add(Box.createVerticalGlue());
+            getContentPane().add(contentBox, BorderLayout.CENTER);
+        }
+
     }
-    // Главный метод класса
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws IOException {
         MainFrame frame = new MainFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
