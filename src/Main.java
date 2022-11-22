@@ -1,11 +1,8 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 
@@ -28,7 +25,7 @@ public class Main {
         private Box hboxFormulaType = Box.createHorizontalBox();
 
         private int formulaId = 1;
-        private int memoryID = 0;
+        private int memoryID = 1;
         private ButtonGroup memoryButtons = new ButtonGroup();
         private Box Memorybox = Box.createHorizontalBox();
         private Vector<JTextField> TextMemory = new Vector<JTextField>();
@@ -166,7 +163,7 @@ public class Main {
             hboxButtons.setBorder(
                     BorderFactory.createLineBorder(Color.GREEN));
 
-            
+
 
             Memorybox.add(Box.createHorizontalGlue());
             addMemoryRadioButton("Mem1", 0);
