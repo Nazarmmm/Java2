@@ -166,6 +166,7 @@ public class Main {
             hboxButtons.setBorder(
                     BorderFactory.createLineBorder(Color.GREEN));
 
+            
 
             Memorybox.add(Box.createHorizontalGlue());
             addMemoryRadioButton("Mem1", 0);
